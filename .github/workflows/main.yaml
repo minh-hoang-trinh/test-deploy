@@ -1,0 +1,39 @@
+name: test-staging
+
+on:
+  pull_request:
+    types:
+      - closed
+      - opened
+      - synchronize
+      - reopened
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: volta-cli/action@v1
+      - name: Test
+        run: |
+          echo "abc" >> test.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test
+          path: test.txt
+          retention-days: 1
+  close-pr:
+    name: lint
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: test
+      - name: Display structure of downloaded files
+        run: ls -R
