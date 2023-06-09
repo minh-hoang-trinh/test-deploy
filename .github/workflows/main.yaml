@@ -28,7 +28,8 @@ jobs:
           path: test.txt
           retention-days: 1
   close-pr:
-    name: lint
+    name: close-pr
+    needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged
     steps:
